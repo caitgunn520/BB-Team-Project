@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Media;
+using System.Threading;
 
 namespace BrickBreaker
 {
@@ -36,7 +37,7 @@ namespace BrickBreaker
         SolidBrush paddleBrush = new SolidBrush(Color.White);
         SolidBrush ballBrush = new SolidBrush(Color.White);
         SolidBrush blockBrush = new SolidBrush(Color.Red);
-
+        
         #endregion
 
         public GameScreen()
@@ -48,11 +49,12 @@ namespace BrickBreaker
 
         public void OnStart()
         {
+            
             //set life counter
             lives = 3;
 
             //set all button presses to false.
-            leftArrowDown = rightArrowDown = false;
+            leftArrowDown = rightArrowDown  = false;
 
             // setup starting paddle values and create paddle object
             int paddleWidth = 80;
@@ -103,6 +105,7 @@ namespace BrickBreaker
                 case Keys.Right:
                     rightArrowDown = true;
                     break;
+               
                 default:
                     break;
             }
@@ -119,6 +122,7 @@ namespace BrickBreaker
                 case Keys.Right:
                     rightArrowDown = false;
                     break;
+            
                 default:
                     break;
             }
@@ -126,6 +130,11 @@ namespace BrickBreaker
 
         private void gameTimer_Tick(object sender, EventArgs e)
         {
+            if(paddle.width > 80)
+            {
+                paddle.width--;
+            }
+
             // Move the paddle
             if (leftArrowDown && paddle.x > 0)
             {
@@ -150,6 +159,7 @@ namespace BrickBreaker
                 // Moves the ball back to origin
                 ball.x = ((paddle.x - (ball.size / 2)) + (paddle.width / 2));
                 ball.y = (this.Height - paddle.height) - 85;
+
 
                 if (lives == 0)
                 {
@@ -208,6 +218,11 @@ namespace BrickBreaker
 
             // Draws ball
             e.Graphics.FillRectangle(ballBrush, ball.x, ball.y, ball.size, ball.size);
+
+            
         }
+        
     }
 }
+    
+
