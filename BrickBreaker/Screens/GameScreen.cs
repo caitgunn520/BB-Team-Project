@@ -38,56 +38,13 @@ namespace BrickBreaker
         SolidBrush paddleBrush = new SolidBrush(Color.White);
         SolidBrush ballBrush = new SolidBrush(Color.White);
         SolidBrush blockBrush = new SolidBrush(Color.Red);
-        
+
+        int levelNumber = 1;
         #endregion
 
         public GameScreen()
         {
             InitializeComponent();
-
-            //gets level info and prepares blocks
-            XmlTextReader reader = new XmlTextReader("level1.xml");
-
-            while (reader.Read())
-            {
-                if (reader.NodeType == XmlNodeType.Text)
-                {
-                    int x = Convert.ToInt32(reader.ReadString());
-
-                    reader.ReadToNextSibling("y");
-                    int y = Convert.ToInt32(reader.ReadString());
-
-                    reader.ReadToNextSibling("hp");
-                    int hp = Convert.ToInt32(reader.ReadString());
-
-                    reader.ReadToNextSibling("color");
-                    string colour = reader.ReadString();
-
-                    Color bColour = Color.White;
-
-                    switch (colour)
-                    {
-                        case "DarkRed":
-                            bColour = Color.DarkRed;
-                            break;
-                        case "Goldenrod":
-                            bColour = Color.Goldenrod;
-                            break;
-                        case "YellowGreen":
-                            bColour = Color.YellowGreen;
-                            break;
-                        case "DarkGray":
-                            bColour = Color.DarkGray;
-                            break;
-                        default:
-                            break;
-                    }
-
-
-                    Block block = new Block(x, y, hp, bColour);
-                    blocks.Add(block);
-                }
-            }
 
             OnStart();
         }
@@ -121,9 +78,9 @@ namespace BrickBreaker
             ball = new Ball(ballX, ballY, xSpeed, ySpeed, ballSize);
 
             //#region Creates blocks for generic level. Need to replace with code that loads levels.
-            
+
             ////TODO - replace all the code in this region eventually with code that loads levels from xml files
-            
+
             //blocks.Clear();
             //int x = 10;
 
@@ -136,10 +93,7 @@ namespace BrickBreaker
 
             //#endregion
 
-            
-
-            // start the game engine loop
-            gameTimer.Enabled = true;
+            LevelStart();
         }
 
         private void GameScreen_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
@@ -229,7 +183,8 @@ namespace BrickBreaker
                     if (blocks.Count == 0)
                     {
                         gameTimer.Enabled = false;
-                        OnEnd();
+                        levelNumber++;
+                        LevelStart();
                     }
 
                     break;
@@ -238,6 +193,58 @@ namespace BrickBreaker
 
             //redraw the screen
             Refresh();
+        }
+
+        public void LevelStart()
+        {
+            //gets level info and places blocks
+
+            string level = "level" + levelNumber + ".xml";
+
+            XmlTextReader reader = new XmlTextReader(level);
+
+            while (reader.Read())
+            {
+                if (reader.NodeType == XmlNodeType.Text)
+                {
+                    int x = Convert.ToInt32(reader.ReadString());
+
+                    reader.ReadToNextSibling("y");
+                    int y = Convert.ToInt32(reader.ReadString());
+
+                    reader.ReadToNextSibling("hp");
+                    int hp = Convert.ToInt32(reader.ReadString());
+
+                    reader.ReadToNextSibling("color");
+                    string colour = reader.ReadString();
+
+                    Color bColour = Color.White;
+
+                    switch (colour)
+                    {
+                        case "DarkRed":
+                            bColour = Color.DarkRed;
+                            break;
+                        case "Goldenrod":
+                            bColour = Color.Goldenrod;
+                            break;
+                        case "YellowGreen":
+                            bColour = Color.YellowGreen;
+                            break;
+                        case "DarkGray":
+                            bColour = Color.DarkGray;
+                            break;
+                        default:
+                            break;
+                    }
+
+
+                    Block block = new Block(x, y, hp, bColour);
+                    blocks.Add(block);
+                }
+                // start the game engine loop
+                gameTimer.Enabled = true;
+            }
         }
 
         public void OnEnd()
