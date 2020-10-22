@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Media;
 using System.Threading;
+using System.Xml;
 
 namespace BrickBreaker
 {
@@ -43,6 +44,51 @@ namespace BrickBreaker
         public GameScreen()
         {
             InitializeComponent();
+
+            //gets level info and prepares blocks
+            XmlTextReader reader = new XmlTextReader("level1.xml");
+
+            while (reader.Read())
+            {
+                if (reader.NodeType == XmlNodeType.Text)
+                {
+                    int x = Convert.ToInt32(reader.ReadString());
+
+                    reader.ReadToNextSibling("y");
+                    int y = Convert.ToInt32(reader.ReadString());
+
+                    reader.ReadToNextSibling("hp");
+                    int hp = Convert.ToInt32(reader.ReadString());
+
+                    reader.ReadToNextSibling("color");
+                    string colour = reader.ReadString();
+
+                    Color bColour = Color.White;
+
+                    switch (colour)
+                    {
+                        case "DarkRed":
+                            bColour = Color.DarkRed;
+                            break;
+                        case "Goldenrod":
+                            bColour = Color.Goldenrod;
+                            break;
+                        case "YellowGreen":
+                            bColour = Color.YellowGreen;
+                            break;
+                        case "DarkGray":
+                            bColour = Color.DarkGray;
+                            break;
+                        default:
+                            break;
+                    }
+
+
+                    Block block = new Block(x, y, hp, bColour);
+                    blocks.Add(block);
+                }
+            }
+
             OnStart();
         }
 
@@ -74,21 +120,23 @@ namespace BrickBreaker
             int ballSize = 20;
             ball = new Ball(ballX, ballY, xSpeed, ySpeed, ballSize);
 
-            #region Creates blocks for generic level. Need to replace with code that loads levels.
+            //#region Creates blocks for generic level. Need to replace with code that loads levels.
             
-            //TODO - replace all the code in this region eventually with code that loads levels from xml files
+            ////TODO - replace all the code in this region eventually with code that loads levels from xml files
             
-            blocks.Clear();
-            int x = 10;
+            //blocks.Clear();
+            //int x = 10;
 
-            while (blocks.Count < 12)
-            {
-                x += 57;
-                Block b1 = new Block(x, 10, 1, Color.White);
-                blocks.Add(b1);
-            }
+            //while (blocks.Count < 12)
+            //{
+            //    x += 57;
+            //    Block b1 = new Block(x, 10, 1, Color.White);
+            //    blocks.Add(b1);
+            //}
 
-            #endregion
+            //#endregion
+
+            
 
             // start the game engine loop
             gameTimer.Enabled = true;
