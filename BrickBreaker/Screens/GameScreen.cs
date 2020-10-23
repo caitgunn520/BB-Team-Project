@@ -38,8 +38,16 @@ namespace BrickBreaker
         SolidBrush paddleBrush = new SolidBrush(Color.White);
         SolidBrush ballBrush = new SolidBrush(Color.White);
         SolidBrush blockBrush = new SolidBrush(Color.Red);
+        Pen lineBrush = new Pen(Color.Aquamarine);
 
         int levelNumber = 1;
+
+        // Controls if objects are allowed to move
+        bool ballMove = false;
+        bool paddleMove = false;
+
+        // Controls launch line
+        int launchLine = 2;
         #endregion
 
         public GameScreen()
@@ -101,13 +109,50 @@ namespace BrickBreaker
             //player 1 button presses
             switch (e.KeyCode)
             {
+                // Makes launch line change when arrow buttons are pressed
                 case Keys.Left:
                     leftArrowDown = true;
+                    if (paddleMove == false && launchLine > 1)
+                    {
+                        launchLine--;
+                    }
                     break;
                 case Keys.Right:
                     rightArrowDown = true;
+                    if (paddleMove == false && launchLine < 4)
+                    {
+                        launchLine++;
+                    }
                     break;
-               
+                case Keys.Space:
+                    if (ballMove == false)
+                    {
+                        switch (launchLine)
+                        {
+                            case 1:
+                                ball.xSpeed = -9;
+                                ball.ySpeed = 3;
+                                break;
+                            case 2:
+                                ball.xSpeed = -6;
+                                ball.ySpeed = 6;
+                                break;
+                            case 3:
+                                ball.xSpeed = 6;
+                                ball.ySpeed = 6;
+                                break;
+                            case 4:
+                                ball.xSpeed = 9;
+                                ball.ySpeed = 3;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    ballMove = true;
+                    paddleMove = true;
+                    //TODO: Make ball trajectory match launch line
+                    break;
                 default:
                     break;
             }
@@ -124,7 +169,7 @@ namespace BrickBreaker
                 case Keys.Right:
                     rightArrowDown = false;
                     break;
-            
+
                 default:
                     break;
             }
@@ -138,17 +183,24 @@ namespace BrickBreaker
             }
 
             // Move the paddle
-            if (leftArrowDown && paddle.x > 0)
+            if (paddleMove == true)
             {
-                paddle.Move("left");
+                if (leftArrowDown && paddle.x > 0)
+                {
+                    paddle.Move("left");
+                }
+                if (rightArrowDown && paddle.x < (this.Width - paddle.width))
+                {
+                    paddle.Move("right");
+                }
             }
-            if (rightArrowDown && paddle.x < (this.Width - paddle.width))
-            {
-                paddle.Move("right");
-            }
+            
 
-            // Move ball
+            // Move ball or show ball launch direction
+            if (ballMove == true)
+            { 
             ball.Move();
+            }
 
             // Check for collision with top and side walls
             ball.WallCollision(this);
@@ -161,6 +213,8 @@ namespace BrickBreaker
                 // Moves the ball back to origin
                 ball.x = ((paddle.x - (ball.size / 2)) + (paddle.width / 2));
                 ball.y = (this.Height - paddle.height) - 85;
+                ballMove = false;
+                paddleMove = false;
 
 
                 if (lives == 0)
@@ -197,6 +251,12 @@ namespace BrickBreaker
 
         public void LevelStart()
         {
+            //resets ball position
+            ball.x = paddle.x - (ball.size / 2) + (paddle.width / 2);
+            ball.y = Height - paddle.height - 85;
+            ballMove = false;
+            paddleMove = false;
+
             //gets level info and places blocks
 
             string level = "level" + levelNumber + ".xml";
@@ -274,9 +334,35 @@ namespace BrickBreaker
             // Draws ball
             e.Graphics.FillRectangle(ballBrush, ball.x, ball.y, ball.size, ball.size);
 
-            
+            // Draws ball launch line if necessary
+            if (ballMove == false)
+            {
+                // Makes launch line change depending on launchLine value
+                switch (launchLine)
+                {
+                    case 1:
+                        e.Graphics.DrawLine(lineBrush, paddle.x + (paddle.width / 2), paddle.y,
+                            paddle.x + (paddle.width / 2) - 98, paddle.y - 51);
+                        break;
+                    case 2:
+                        e.Graphics.DrawLine(lineBrush, paddle.x + (paddle.width / 2), paddle.y,
+                            paddle.x + (paddle.width / 2) - 58, paddle.y - 69);
+                        break;
+                    case 3:
+                        e.Graphics.DrawLine(lineBrush, paddle.x + (paddle.width / 2), paddle.y,
+                            paddle.x + (paddle.width / 2) + 58, paddle.y - 69);
+                        break;
+                    case 4:
+                        e.Graphics.DrawLine(lineBrush, paddle.x + (paddle.width / 2), paddle.y,
+                            paddle.x + (paddle.width / 2) + 98, paddle.y - 51);
+                        break;
+                    default:
+                        break;
+                }
+
+            }
         }
-        
+
     }
 }
     
